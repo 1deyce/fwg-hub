@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextApiRequest, NextApiResponse } from 'next';
 import { createUser } from "@/lib/auth";
 
-export async function POST(request: Request) {
+export async function POST(req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { email, password, name } = await request.json();
+        const { email, password, name } = await req.body;
         const user = await createUser(email, password, name);
-        return NextResponse.json({ user }, { status: 201 });
+        res.status(200).json({ message: 'Registration successful' });
     } catch (error) {
-        return NextResponse.json({ error: "Registration failed" }, { status: 500 });
+        res.status(500).json({ message: 'Internal Server Error', error });
     }
 }

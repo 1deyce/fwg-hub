@@ -46,20 +46,46 @@ export default function RegisterPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(values),
             });
-
-            if (!response.ok) throw new Error("Registration failed");
-
+    
+            console.log(response);
+    
+            if (!response.ok) {
+                const contentType = response.headers.get("Content-Type");
+                let errorData;
+    
+                if (contentType && contentType.includes("application/json")) {
+                    errorData = await response.json();
+                } else {
+                    const text = await response.text();
+                    errorData = { message: text || "Unknown error occurred" };
+                }
+    
+                console.error("Registration error details:", errorData);
+                throw new Error(errorData.message || "Registration failed");
+            }
+    
             toast({
                 title: "Registration successful!",
                 description: "Please log in with your credentials.",
             });
             router.push("/auth/login");
         } catch (error) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Something went wrong. Please try again.",
-            });
+            if (error instanceof TypeError) {
+                // Handle network error
+                console.error('Network error:', error);
+                toast({
+                    variant: "destructive",
+                    title: "Network Error",
+                    description: "Unable to reach the server. Please check your connection.",
+                });
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Something went wrong. Please try again.",
+                });
+                console.error('Error during registration:', error);
+            }
         } finally {
             setIsLoading(false);
         }

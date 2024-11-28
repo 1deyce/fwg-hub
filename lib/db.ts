@@ -6,19 +6,6 @@ if (!MONGODB_URI) {
     throw new Error("Please define the MONGODB_URI environment variable");
 }
 
-interface MongooseCache {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-}
-
-declare global {
-    namespace NodeJS {
-        interface Global {
-            mongoose: MongooseCache;
-        }
-    }
-}
-
 let cached = global.mongoose;
 
 if (!cached) {
